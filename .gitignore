@@ -29,5 +29,5 @@ go.work
 # Config file
 config.yaml
 
-# Cache directory
-.cache/
+# Data directory
+data/

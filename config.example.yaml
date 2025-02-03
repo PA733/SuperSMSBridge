@@ -1,0 +1,19 @@
+http:
+  enabled: true
+  port: 8080
+  secret_key: "123456"
+  tls:
+    cert: "Path, leave it blank to disable the internel SSL/TLS support"
+    key: "/path/to/cert.key"
+
+ws:
+  enabled: true
+  port: 8080
+  secret_key: "123456"
+  tls:
+    cert: ""
+    key: ""
+
+telegram:
+  botToken: "123456:abcdefg"
+  targetGroupId: -100
