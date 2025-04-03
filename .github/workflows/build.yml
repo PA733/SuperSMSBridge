@@ -32,7 +32,13 @@ jobs:
           if [ "${{ matrix.mode }}" = "release" ]; then
             FLAGS="-ldflags=-s -w"
           fi
-          GOOS=$(echo ${{ matrix.os }} | cut -d'-' -f1)
+
+          case "${{ matrix.os }}" in
+            ubuntu-latest) GOOS=linux ;;
+            windows-latest) GOOS=windows ;;
+            macos-latest) GOOS=darwin ;;
+          esac
+
           GOARCH=${{ matrix.arch }}
           GOOS=$GOOS GOARCH=$GOARCH go build $FLAGS -o dist/${{ matrix.os }}/${{ matrix.arch }}/${{ matrix.mode }}/super-sms-bridge ./cmd/super-sms-bridge
         shell: bash
