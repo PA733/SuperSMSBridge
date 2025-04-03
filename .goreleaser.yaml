@@ -1,5 +1,3 @@
-# .goreleaser.yaml
-
 project_name: super-sms-bridge
 
 builds:
