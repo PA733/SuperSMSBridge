@@ -22,6 +22,7 @@ archives:
     files:
       - LICENSE
       - README.md
+      - config.example.yaml
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
