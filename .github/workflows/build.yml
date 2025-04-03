@@ -1,0 +1,28 @@
+name: Build and Upload
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.23.3
+
+      - name: Build
+        run: |
+          go build -o super-sms-bridge ./cmd/super-sms-bridge
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: super-sms-bridge
+          path: super-sms-bridge
