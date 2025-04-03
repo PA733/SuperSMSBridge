@@ -1,20 +1,16 @@
-name: Build and Upload
+name: Build and Release
 
 on:
   push:
+    tags:
+      - 'v*'
+    branches:
+      - '**'
   pull_request:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        arch: [amd64, arm64, 386]
-        mode: [debug, release]
-        exclude:
-          - os: macos-latest
-            arch: 386
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -25,26 +21,26 @@ jobs:
         with:
           go-version: 1.23.3
 
-      - name: Build
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest
+
+      - name: Build or Release
         run: |
-          mkdir -p dist/${{ matrix.os }}/${{ matrix.arch }}/${{ matrix.mode }}
-          FLAGS=""
-          if [ "${{ matrix.mode }}" = "release" ]; then
-            FLAGS="-ldflags=-s -w"
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "📦 Releasing version ${GITHUB_REF_NAME}"
+            goreleaser release --clean
+          else
+            echo "🔨 Building snapshot (no release)"
+            goreleaser build --clean --snapshot
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          case "${{ matrix.os }}" in
-            ubuntu-latest) GOOS=linux ;;
-            windows-latest) GOOS=windows ;;
-            macos-latest) GOOS=darwin ;;
-          esac
-
-          GOARCH=${{ matrix.arch }}
-          GOOS=$GOOS GOARCH=$GOARCH go build $FLAGS -o dist/${{ matrix.os }}/${{ matrix.arch }}/${{ matrix.mode }}/super-sms-bridge ./cmd/super-sms-bridge
-        shell: bash
-
-      - name: Upload Build Artifact
+      - name: Upload Artifacts (for non-tag builds)
+        if: ${{ github.ref_type != 'tag' }}
         uses: actions/upload-artifact@v4
         with:
-          name: super-sms-bridge-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
-          path: dist/${{ matrix.os }}/${{ matrix.arch }}/${{ matrix.mode }}/super-sms-bridge
+          name: built-binaries
+          path: dist/*
