@@ -31,3 +31,6 @@ config.yaml
 
 # Data directory
 data/
+
+# goreleaser
+dist/

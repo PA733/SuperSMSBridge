@@ -1,0 +1,36 @@
+project_name: super-sms-bridge
+
+builds:
+  - id: default
+    main: ./cmd/super-sms-bridge
+    binary: super-sms-bridge
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags: "-s -w"
+
+archives:
+  - id: default
+    format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - config.example.yaml
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+
+release:
+  github:
+    owner: PA733
+    name: SuperSMSBridge
+
+snapshot:
+  name_template: "{{ .Tag }}-dev"
