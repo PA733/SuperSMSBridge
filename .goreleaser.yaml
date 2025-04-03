@@ -1,13 +1,11 @@
 # .goreleaser.yaml
 
-# 项目名称
-project_name: my-project
+project_name: super-sms-bridge
 
-# 编译配置
 builds:
   - id: default
-    main: ./cmd/my-project           # 主入口目录，根据实际情况调整
-    binary: my-project               # 输出二进制名称
+    main: ./cmd/super-sms-bridge
+    binary: super-sms-bridge
     goos:
       - linux
       - darwin
@@ -17,28 +15,23 @@ builds:
       - arm64
     env:
       - CGO_ENABLED=0
-    ldflags: "-s -w"                # 可根据需求自定义 ldflags
+    ldflags: "-s -w"
 
-# 打包配置
 archives:
   - id: default
-    format: zip                     # 打包格式，可选 tar.gz 等
+    format: zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
-      - LICENSE                     # 可以添加其他需要随发行版打包的文件
+      - LICENSE
       - README.md
 
-# 校验和文件（可选）
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 
-# 发布到 GitHub Releases 的配置
 release:
   github:
-    owner: your-github-username     # 请替换为你的 GitHub 用户名或组织名
-    name: your-repo-name            # 请替换为你的仓库名称
+    owner: PA733
+    name: SuperSMSBridge
 
-# 快照（非 tag 构建）配置
-# 当使用 --snapshot 参数时，goreleaser 不会发布 release，仅生成快照产物供后续上传到 artifacts
 snapshot:
   name_template: "{{ .Tag }}-dev"
