@@ -21,20 +21,19 @@ jobs:
         with:
           go-version: 1.23.3
 
-      - name: Install GoReleaser
+      - name: Build
+        if: ${{ github.ref_type != 'tag' }}
         uses: goreleaser/goreleaser-action@v5
         with:
           version: latest
+          args: build --clean --snapshot
 
-      - name: Build or Release
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            echo "📦 Releasing version ${GITHUB_REF_NAME}"
-            goreleaser release --clean
-          else
-            echo "🔨 Building snapshot (no release)"
-            goreleaser build --clean --snapshot
-          fi
+      - name: Build
+        if: ${{ github.ref_type == 'tag' }}
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: latest
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
