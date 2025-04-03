@@ -6,7 +6,16 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [amd64, arm64, 386]
+        mode: [debug, release]
+        exclude:
+          # Go does not support 386 on macOS
+          - os: macos-latest
+            arch: 386
 
     steps:
       - name: Checkout code
@@ -17,12 +26,25 @@ jobs:
         with:
           go-version: 1.23.3
 
+      - name: Set environment variables
+        run: |
+          echo "GOARCH=${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "GOOS=$(echo ${{ matrix.os }} | cut -d'-' -f1)" >> $GITHUB_ENV
+          if [ "${{ matrix.mode }}" = "release" ]; then
+            echo "GOBUILD_FLAGS=-ldflags='-s -w'" >> $GITHUB_ENV
+          else
+            echo "GOBUILD_FLAGS=" >> $GITHUB_ENV
+          fi
+        shell: bash
+
       - name: Build
         run: |
-          go build -o super-sms-bridge ./cmd/super-sms-bridge
+          mkdir -p dist/${{ matrix.os }}/${{ matrix.arch }}/${{ matrix.mode }}
+          go build $GOBUILD_FLAGS -o dist/${{ matrix.os }}/${{ matrix.arch }}/${{ matrix.mode }}/super-sms-bridge ./cmd/super-sms-bridge
+        shell: bash
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: super-sms-bridge
-          path: super-sms-bridge
+          name: super-sms-bridge-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
+          path: dist/${{ matrix.os }}/${{ matrix.arch }}/${{ matrix.mode }}/super-sms-bridge
